@@ -1,3 +1,5 @@
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 CREATE TABLE IF NOT EXISTS streaming_accounts (
     service TEXT PRIMARY KEY,        -- 'netflix', 'hulu', etc.
     email TEXT NOT NULL,
