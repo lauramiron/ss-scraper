@@ -1,0 +1,20 @@
+# render.yaml
+databases:
+  - name: ss-scraper-db
+    databaseName: nextuptv
+    plan: free
+
+services:
+  - type: web
+    name: ss-scraper
+    env: node
+    plan: free
+    buildCommand: "npm install"
+    startCommand: "npm start"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ss-scraper-db
+          property: connectionString
+      - key: API_KEY
+        value: "change-me"    # set to a long random value or override in dashboard
