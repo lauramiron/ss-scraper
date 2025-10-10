@@ -1,5 +1,5 @@
 # Uses Playwright’s official image with all browser deps
-FROM mcr.microsoft.com/playwright:v1.56.0-noble
+FROM mcr.microsoft.com/playwright:v1.47.0-jammy
 
 WORKDIR /app
 
