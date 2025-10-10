@@ -1,7 +1,7 @@
 # render.yaml
 databases:
   - name: ss-scraper-db
-    databaseName: ss-scraper
+    databaseName: ss_scraper_db
     plan: free
 
 services:
