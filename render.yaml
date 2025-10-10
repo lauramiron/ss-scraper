@@ -9,7 +9,7 @@ services:
     name: ss-scraper
     env: node
     plan: free
-    buildCommand: "npm install"
+    buildCommand: "npm install && npx playwright install --with-deps"
     startCommand: "npm start"
     envVars:
       - key: DATABASE_URL

@@ -64,8 +64,9 @@ export async function ensureLoggedIn() {
   await page.click('button[data-uia="login-submit-button"]');
   await page.waitForLoadState("networkidle");
 
-  // optional: select first profile
-  const profileBtn = await page.$('[data-uia="profile-link"]');
+  // Select second profile
+  // TODO: Make general
+  const profileBtn = await page.$('[data-uia="action-select-profile+secondary"]');
   if (profileBtn) await profileBtn.click();
 
   await saveSessionState(await context.storageState());
