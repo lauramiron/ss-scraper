@@ -1,6 +1,19 @@
 import express from "express";
 import { netflixRouter } from "./services/netflix/routes.js";
 
+import { readFile } from "fs/promises";
+
+try {
+  const pkgJson = JSON.parse(
+    await readFile(new URL("./node_modules/playwright/package.json", import.meta.url))
+  );
+  console.log("PW version:", pkgJson.version);
+} catch (err) {
+  console.error("Couldn't read playwright/package.json", err);
+}
+
+console.log("PW browsers path:", process.env.PLAYWRIGHT_BROWSERS_PATH);
+
 const app = express();
 app.use(express.json());
 
@@ -20,7 +33,6 @@ app.use((req, res, next) => {
   // 1️⃣  Allow whitelisted IPs
   if (ALLOWED_IPS.includes(ip)) {
     console.log("Allowed IP:", ip);
-    console.log('PW version:', require('playwright/package.json').version);
     console.log(process.env.PLAYWRIGHT_BROWSERS_PATH);
 
     return next();
