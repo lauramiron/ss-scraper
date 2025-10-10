@@ -20,6 +20,9 @@ app.use((req, res, next) => {
   // 1️⃣  Allow whitelisted IPs
   if (ALLOWED_IPS.includes(ip)) {
     console.log("Allowed IP:", ip);
+    console.log('PW version:', require('playwright/package.json').version);
+    console.log(process.env.PLAYWRIGHT_BROWSERS_PATH);
+
     return next();
   } else {
     console.warn("Requiring x-api-key header from IP:", ip);
