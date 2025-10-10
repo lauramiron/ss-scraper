@@ -1,7 +1,7 @@
 # render.yaml
 databases:
   - name: ss-scraper-db
-    databaseName: nextuptv
+    databaseName: ss-scraper
     plan: free
 
 services:
@@ -17,4 +17,6 @@ services:
           name: ss-scraper-db
           property: connectionString
       - key: API_KEY
-        value: "change-me"    # set to a long random value or override in dashboard
+        value: "change-me"
+      - key: PG_ENCRYPTION_KEY
+        value: "change-me"
