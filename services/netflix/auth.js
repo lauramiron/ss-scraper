@@ -7,7 +7,7 @@ export async function getCredentials() {
   const { rows } = await query(`
     SELECT
       email,
-      pgp_sym_decrypt(password_encrypted, $1) AS password
+      pgp_sym_decrypt(encrypted_password, $1) AS password
     FROM streaming_accounts
     WHERE service='netflix'
   `, [ENCRYPTION_KEY]);
@@ -16,12 +16,12 @@ export async function getCredentials() {
 
 export async function saveCredentials(email, password) {
   await query(`
-    INSERT INTO streaming_accounts (service, email, password_encrypted)
+    INSERT INTO streaming_accounts (service, email, encrypted_password)
     VALUES ('netflix', $1, pgp_sym_encrypt($2, $3))
     ON CONFLICT (service)
       DO UPDATE SET
         email=$1,
-        password_encrypted=pgp_sym_encrypt($2, $3),
+        encrypted_password=pgp_sym_encrypt($2, $3),
         updated_at=now()
   `, [email, password, ENCRYPTION_KEY]);
 }
