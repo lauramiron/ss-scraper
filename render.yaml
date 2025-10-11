@@ -7,8 +7,9 @@ databases:
 services:
   - type: web
     name: ss-scraper
-    env: docker
+    runtime: docker
     plan: free
+    rootDir: .
     dockerfilePath: ./Dockerfile
     dependsOn:
       - name: ss-scraper-db
