@@ -11,8 +11,6 @@ services:
     plan: free
     rootDir: .
     dockerfilePath: ./Dockerfile
-    dependsOn:
-      - name: ss-scraper-db
     envVars:
       - key: DATABASE_URL
         fromDatabase:
