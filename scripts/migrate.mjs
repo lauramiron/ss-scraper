@@ -1,4 +1,4 @@
-// scripts/migrate.js
+// scripts/migrate.mjs
 import fs from "fs";
 import path from "path";
 import pkg from "pg";
