@@ -30,6 +30,7 @@ export async function loadSessionState(service) {
     JOIN streaming_service s ON ss.streaming_service_id = s.id
     WHERE s.name = $1
   `, [service]);
+  // @ts-ignore
   return rows[0]?.json_state || null;
 }
 
@@ -45,6 +46,7 @@ export async function saveSessionState(state, service) {
     throw new Error(`Streaming service '${service}' does not exist in streaming_service table`);
   }
 
+  // @ts-ignore
   const serviceId = rows[0].id;
 
   // Save the session state

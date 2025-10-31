@@ -12,6 +12,7 @@ const ALLOWED_IPS = (process.env.ALLOWED_IPS || "")
 
 app.use((req, res, next) => {
   const forwarded = req.headers["x-forwarded-for"];
+  // @ts-ignore
   const ip = forwarded ? forwarded.split(",")[0].trim() : req.socket.remoteAddress;
 
   // For debugging; remove later if noisy

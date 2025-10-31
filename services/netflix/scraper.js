@@ -1,6 +1,6 @@
 import "dotenv/config";
-import { ensureLoggedIn, saveSessionState } from "./auth.js";
-import { lazyScroll, newChromiumBrowserFromSavedState } from "../utils.js";
+import { ensureLoggedIn } from "./auth.js";
+import { lazyScroll, newChromiumBrowserFromSavedState, saveSessionState } from "../utils.js";
 
 
 // util: find the Continue Watching rail by heading text (case-insensitive)
@@ -104,9 +104,9 @@ export async function scrapeNetflixContinueWatching() {
   return items;
 }
 
-// CLI entry point
-if (import.meta.url === `file://${process.argv[1]}`) {
-  const result = await scrapeNetflixContinueWatching();
-  console.log(result);
-  process.exit(0);
-}
+// // CLI entry point
+// if (import.meta.url === `file://${process.argv[1]}`) {
+//   const result = await scrapeNetflixContinueWatching();
+//   console.log(result);
+//   process.exit(0);
+// }

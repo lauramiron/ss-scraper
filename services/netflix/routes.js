@@ -21,7 +21,9 @@ netflixRouter.get("/login", async (_req, res) => {
     <html><body>
       <h2>Netflix Login</h2>
       <form method="POST" action="/netflix/login">
-        <label>Email: <input name="email" value="${creds?.email || ""}" /></label><br/>
+        <label>Email: <input name="email" value="${creds?.
+// @ts-ignore
+        email || ""}" /></label><br/>
         <label>Password: <input name="password" type="password" /></label><br/>
         <button type="submit">Save</button>
       </form>
