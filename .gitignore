@@ -1,3 +1,5 @@
 node_modules
 cookies.json
 .env
+**/cookies.js
+**/creds.js
