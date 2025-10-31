@@ -5,6 +5,7 @@ const cookiesFile = "./cookies.json";
 
 export async function scrapeNetflixContinueWatching() {
   const browser = await chromium.launch({ headless: true });
+  // const browser = await chromium.launch({ headless: false, slowMo: 100 });
   const context = await browser.newContext();
 
   // reuse cookies if they exist
