@@ -1,5 +1,5 @@
 import { chromium } from "playwright";
-import { query } from "../../db/index.js";
+import { query } from "../db/index.js";
 
 const env = process.env.ENV;
 
