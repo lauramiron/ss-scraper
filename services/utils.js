@@ -24,18 +24,36 @@ export async function loadSessionState(service) {
   }
 
   // production: load from database
-  const { rows } = await query("SELECT json_state FROM session_states WHERE service=$1", [service]);
+  const { rows } = await query(`
+    SELECT ss.json_state
+    FROM session_states ss
+    JOIN streaming_service s ON ss.streaming_service_id = s.id
+    WHERE s.name = $1
+  `, [service]);
   return rows[0]?.json_state || null;
 }
 
 export async function saveSessionState(state, service) {
   if (env == "debug") return;
 
+  // Get the streaming_service_id, throw error if it doesn't exist
+  const { rows } = await query(`
+    SELECT id FROM streaming_service WHERE name = $1
+  `, [service]);
+
+  if (rows.length === 0) {
+    throw new Error(`Streaming service '${service}' does not exist in streaming_service table`);
+  }
+
+  const serviceId = rows[0].id;
+
+  // Save the session state
   await query(`
-    INSERT INTO session_states (service, json_state)
-    VALUES ($2, $1)
-    ON CONFLICT (service) DO UPDATE SET json_state=$1, updated_at=now()
-  `, [state, service]);
+    INSERT INTO session_states (streaming_service_id, json_state)
+    VALUES ($1, $2)
+    ON CONFLICT (streaming_service_id) DO UPDATE
+      SET json_state = $2, updated_at = now()
+  `, [serviceId, state]);
 }
 
 export async function newChromiumBrowserFromSavedState(service) {

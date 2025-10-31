@@ -15,9 +15,11 @@ CREATE TABLE IF NOT EXISTS streaming_accounts (
     -- updated_at TIMESTAMP DEFAULT now()
 );
 
-CREATE TABLE IF NOT EXISTS session_states (
+DROP TABLE IF EXISTS session_states;
+
+CREATE TABLE session_states (
     id SERIAL PRIMARY KEY,
-    streaming_service_id INT NOT NULL REFERENCES streaming_service(id),
+    streaming_service_id INT UNIQUE NOT NULL REFERENCES streaming_service(id),
     json_state JSONB NOT NULL,       -- serialized Playwright storageState()
     last_login TIMESTAMP DEFAULT now(),
     updated_at TIMESTAMP DEFAULT now()
