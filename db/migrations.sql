@@ -12,7 +12,7 @@ CREATE TABLE streaming_service (
 
 CREATE TABLE streaming_accounts (
     id SERIAL PRIMARY KEY,
-    streaming_service_id INT NOT NULL REFERENCES streaming_service(id),
+    streaming_service_id INT UNIQUE NOT NULL REFERENCES streaming_service(id),
     email TEXT NOT NULL,
     encrypted_password BYTEA NOT NULL,
     profile_name TEXT  -- to select between multiple profiles on login
