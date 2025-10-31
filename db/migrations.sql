@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS streaming_accounts (
     streaming_service_id INT NOT NULL REFERENCES streaming_service(id),
     email TEXT NOT NULL,
     encrypted_password BYTEA NOT NULL,
-    profile_name TEXT,  -- to select between multiple profiles on login
+    profile_name TEXT  -- to select between multiple profiles on login
     -- last_login TIMESTAMP DEFAULT now(),
     -- updated_at TIMESTAMP DEFAULT now()
 );
