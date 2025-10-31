@@ -1,9 +1,13 @@
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
-CREATE TABLE streaming_service (
+DROP TABLE IF EXISTS streaming_service;
+
+CREATE TABLE IF NOT EXISTS streaming_service (
   id SERIAL PRIMARY KEY,
   name TEXT UNIQUE NOT NULL  -- 'netflix', 'prime', 'hulu'...
 );
+
+DROP TABLE IF EXISTS streaming_accounts;
 
 CREATE TABLE IF NOT EXISTS streaming_accounts (
     id SERIAL PRIMARY KEY,
@@ -17,7 +21,7 @@ CREATE TABLE IF NOT EXISTS streaming_accounts (
 
 DROP TABLE IF EXISTS session_states;
 
-CREATE TABLE session_states (
+CREATE TABLE IF NOT EXISTS session_states (
     id SERIAL PRIMARY KEY,
     streaming_service_id INT UNIQUE NOT NULL REFERENCES streaming_service(id),
     json_state JSONB NOT NULL,       -- serialized Playwright storageState()
