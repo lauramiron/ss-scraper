@@ -40,7 +40,13 @@ CREATE TABLE IF NOT EXISTS session_states (
     updated_at TIMESTAMP DEFAULT now()
 );
 
-CREATE TYPE IF NOT EXISTS streaming_service_data_type AS ENUM ('resume');
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'streaming_service_data_type') THEN
+        CREATE TYPE streaming_service_data_type AS ENUM ('resume');
+    END IF;
+END
+$$;
 
 CREATE TABLE IF NOT EXISTS streaming_service_data (
     id SERIAL PRIMARY KEY,
