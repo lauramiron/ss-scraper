@@ -1,9 +1,9 @@
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 -- Drop tables in reverse dependency order
--- DROP TABLE IF EXISTS session_states;
--- DROP TABLE IF EXISTS streaming_accounts;
--- DROP TABLE IF EXISTS streaming_service CASCADE;
+DROP TABLE IF EXISTS session_states;
+DROP TABLE IF EXISTS streaming_accounts;
+DROP TABLE IF EXISTS streaming_service CASCADE;
 
 CREATE TABLE IF NOT EXISTS streaming_service (
   id SERIAL PRIMARY KEY,
@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS session_states (
     updated_at TIMESTAMP DEFAULT now()
 );
 
-CREATE TYPE streaming_data_type AS ENUM ('resume');
+CREATE TYPE IF NOT EXISTS streaming_service_data_type AS ENUM ('resume');
 
 CREATE TABLE IF NOT EXISTS streaming_service_data (
     id SERIAL PRIMARY KEY,
