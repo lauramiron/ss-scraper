@@ -6,6 +6,6 @@
       "*": ["src/*"]
     }
   },
-  "include": ["**/*.js"],
+  "include": ["**/*.js", "db/dbQuery.ts", "services/utils.ts"],
   "exclude": ["node_modules", "dist", "build", "coverage"]
 }

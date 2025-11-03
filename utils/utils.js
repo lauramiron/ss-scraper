@@ -1,0 +1,58 @@
+/* eslint-disable no-debugger */
+import { insertSessionState, insertStreamingAccount, selectSessionState, selectStreamingAccount, selectStreamingService } from "../db/dbQuery.js";
+import { newChromiumBrowserFromSavedState } from "./playwrightUtils.js";
+// const env = process.env.ENV;
+export async function loadSessionState(service) {
+    // try load from cookies.js (used in local debug)
+    debugger;
+    // if (env == "debug") {
+    //   const cookiesModule = await import(`./${service}/cookies.js`);
+    //   const cookies = cookiesModule[`${service}Cookies`];
+    //   console.log(`Loaded ${cookies.length} cookies for ${service}`);
+    //   return {
+    //     cookies: cookies,
+    //     origins: []
+    //   }
+    // }
+    // production: load from database
+    return selectSessionState(service);
+}
+export async function saveSessionState(state, service) {
+    debugger;
+    const serviceId = (await selectStreamingService(service)).id;
+    // Find the earliest expiration time from cookies
+    let expiresEpoch = null;
+    if (state.cookies && Array.isArray(state.cookies)) {
+        const cookiesWithExpires = state.cookies.filter(cookie => cookie.expires !== undefined && cookie.expires > 0);
+        if (cookiesWithExpires.length > 0) {
+            expiresEpoch = Math.min(...cookiesWithExpires.map(cookie => cookie.expires));
+        }
+    }
+    await insertSessionState(serviceId, state, expiresEpoch);
+}
+export async function getCredentials(service) {
+    // try load from creds.js (used in local debug)
+    debugger;
+    // if (env == "debug") {
+    //   const { creds } = await import("./creds.js");
+    //   return creds;
+    // }
+    // production: load from database
+    return selectStreamingAccount(service);
+}
+export async function saveCredentials(email, password, service) {
+    // Get the streaming_service_id for the specified service
+    const serviceId = (await selectStreamingService(service)).id;
+    await insertStreamingAccount(serviceId, email, password);
+}
+export async function runScrape(config) {
+    const state = await loadSessionState(config.service);
+    const { context, page } = await newChromiumBrowserFromSavedState(state);
+    await config.ensureLoggedIn(page);
+    await page.goto(config.browseUrl, { waitUntil: "domcontentloaded" });
+    const items = await config.extractContinueWatching(page);
+    console.log(items);
+    await saveSessionState(await context.storageState(), config.service);
+    await context.close();
+    return items;
+}

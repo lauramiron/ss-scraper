@@ -1,53 +1,6 @@
+ 
 // import { chromium } from "playwright";
-import { query } from "../../db/index.js";
-import { saveSessionState } from "../utils.js";
-
-const ENCRYPTION_KEY = process.env.PG_ENCRYPTION_KEY;
-const env = process.env.ENV;
-
-export async function getCredentials(service) {
-  // try load from creds.js (used in local debug)
-  if (env == "debug") {
-    const { creds } = await import("./creds.js");
-    return creds;
-  }
-
-  // production: load from database
-  const { rows } = await query(`
-    SELECT
-      sa.email,
-      pgp_sym_decrypt(sa.encrypted_password, $1) AS password
-    FROM streaming_accounts sa
-    JOIN streaming_service s ON sa.streaming_service_id = s.id
-    WHERE s.name = $2
-  `, [ENCRYPTION_KEY, service]);
-  return rows[0] || null;
-}
-
-export async function saveCredentials(email, password, service) {
-  if (env == "debug") return;
-
-  // Get the streaming_service_id for the specified service
-  const { rows } = await query(`
-    SELECT id FROM streaming_service WHERE name = $1
-  `, [service]);
-
-  if (rows.length === 0) {
-    throw new Error(`Streaming service '${service}' does not exist in streaming_service table`);
-  }
-
-  // @ts-ignore
-  const serviceId = rows[0].id;
-
-  await query(`
-    INSERT INTO streaming_accounts (streaming_service_id, email, encrypted_password)
-    VALUES ($1, $2, pgp_sym_encrypt($3, $4))
-    ON CONFLICT (streaming_service_id)
-      DO UPDATE SET
-        email = $2,
-        encrypted_password = pgp_sym_encrypt($3, $4)
-  `, [serviceId, email, password, ENCRYPTION_KEY]);
-}
+import { getCredentials, saveSessionState } from "../../utils/utils.js";
 
 async function isProfilesGate(page) {
   // Any profile tiles visible?

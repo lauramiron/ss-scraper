@@ -3,7 +3,7 @@ const { Pool } = pkg;
 
 export const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }, // required for Render Postgres
+  ssl: (process.env.ENV == "debug") ? false : { rejectUnauthorized: false }, // required for Render Postgres
 });
 
 export async function query(text, params) {
