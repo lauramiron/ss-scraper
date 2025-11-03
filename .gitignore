@@ -3,3 +3,8 @@ cookies.json
 .env
 **/cookies.js
 **/creds.js
+
+# TypeScript compiled output
+routes.js
+services/netflix/routes.js
+services/netflix/scraper.js
