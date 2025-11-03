@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
+    "postinstall": "npm run build",
     "start": "node scripts/migrate.mjs && node server.js",
     "dev": "./scripts/dev.sh",
     "dev:simple": "nodemon server.js",
