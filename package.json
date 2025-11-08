@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc --project tsconfig.json",
     "postinstall": "npm run build",
     "start": "node scripts/migrate.mjs && node server.js",
     "dev": "./scripts/dev.sh",
