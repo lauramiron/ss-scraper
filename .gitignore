@@ -3,6 +3,7 @@ cookies.json
 .env
 **/cookies.js
 **/creds.js
+**/*.png
 
 # TypeScript compiled output
 routes.js
@@ -12,4 +13,5 @@ services/prime/routes.js
 db/dbQuery.js
 utils/playwrightUtils.js
 utils/utils.js
-netflix/services/auth.js
+services/netflix/auth.js
+services/prime/auth.js
