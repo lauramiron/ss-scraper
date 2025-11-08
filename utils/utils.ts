@@ -1,5 +1,6 @@
 /* eslint-disable no-debugger */
 import { Page } from "playwright";
+import { existsSync } from "fs";
 import { insertSessionState, insertStreamingAccount, selectSessionState, selectStreamingAccount, selectStreamingService, SessionState } from "../db/dbQuery.js";
 import { newChromiumBrowserFromPersistentContext, newChromiumBrowserFromSavedState } from "./playwrightUtils.js";
 
@@ -7,24 +8,44 @@ const env = process.env.ENV;
 
 
 export async function loadSessionState(service: string) {
-  // try load from cookies.js (used in local debug)
   debugger;
-  // if (env == "debug") {
-  //   const cookiesModule = await import(`../services/${service}/cookies.js`);
-  //   const cookies = cookiesModule[`${service}Cookies`];
-  //   console.log(`Loaded ${cookies.length} cookies for ${service}`);
-  //   return {
-  //     cookies: cookies,
-  //     origins: []
-  //   }
-  // }
 
-  // production: load from database
-  console.log('Loading session state from database for ', service)
+  // Always try database first
+  console.log(`[${service}] Looking for session state in database...`);
   const state = await selectSessionState(service);
-  if (!state) console.log("No saved session state found");
-  else console.log("Successfully loaded saved session state"); // TODO print time saved state saved
-  return state;
+
+  if (state) {
+    console.log(`[${service}] ✓ Successfully loaded session state from database`);
+    return state;
+  }
+
+  console.log(`[${service}] ✗ No session state found in database`);
+
+  // Fallback: check if cookies.js file exists
+  const cookiesPath = `./services/${service}/cookies.js`;
+  if (!existsSync(cookiesPath)) {
+    console.log(`[${service}] ✗ No cookies.js file found at ${cookiesPath}`);
+    console.log(`[${service}] ⚠ No session state available - will need to log in`);
+    return null;
+  }
+
+  // Load from cookies.js file (using path relative to project root)
+  console.log(`[${service}] Looking for session state in cookies.js file...`);
+  const { pathToFileURL } = await import('url');
+  const cookiesModule = await import(pathToFileURL(cookiesPath).href);
+  const cookies = cookiesModule[`${service}Cookies`];
+
+  if (cookies && cookies.length > 0) {
+    console.log(`[${service}] ✓ Loaded ${cookies.length} cookies from cookies.js file`);
+    return {
+      cookies: cookies,
+      origins: []
+    };
+  }
+
+  console.log(`[${service}] ✗ cookies.js file exists but contains no cookies`);
+  console.log(`[${service}] ⚠ No session state available - will need to log in`);
+  return null;
 }
 
 export async function saveSessionState(state: SessionState, service: string) {
