@@ -6,6 +6,6 @@
       "*": ["src/*"]
     }
   },
-  "include": ["**/*.js", "db/dbQuery.ts", "services/utils.ts"],
+  "include": ["**/*.js", "db/dbQuery.ts", "services/utils.ts", "db/index.ts", "services/hbo/auth.ts", "services/prime/scraper.ts", "services/hbo/scraper.ts", "services/prime/scraper.ts", "services/prime/auth.ts", "services/netflix/auth.ts"],
   "exclude": ["node_modules", "dist", "build", "coverage"]
 }

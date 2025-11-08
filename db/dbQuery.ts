@@ -1,4 +1,4 @@
-import { query } from "../db/index.js";
+import { query } from "./index.js";
 
 export type ContinueWatchingData = Record<number, { title: string; id: string }>;
 export type StreamingServiceRow = { id: number, service: string};

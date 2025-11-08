@@ -2,6 +2,7 @@ import "dotenv/config";
 import express, { Request, Response, NextFunction } from "express";
 import { netflixRouter } from "./services/netflix/routes.js";
 import { primeRouter } from "./services/prime/routes.js";
+import { hboRouter } from "./services/hbo/routes.js";
 
 const app = express();
 app.use(express.json());
@@ -168,6 +169,7 @@ app.get("/", async (req: Request, res: Response) => {
 
 app.use("/netflix", netflixRouter);
 app.use("/prime", primeRouter);
+app.use("/hbo", hboRouter);
 
 const port = process.env.PORT || 8080;
 app.listen(port, () => console.log(`Server running on ${port}`));

@@ -98,11 +98,15 @@ export async function runScrape(config: RunScrapeConfig) {
 
   await page.goto(config.browseUrl, { waitUntil: "domcontentloaded" });
 
-  const items = await config.extractContinueWatching(page);
-  console.log(items);
+  let items = [];
+  try {
+    items = await config.extractContinueWatching(page);
+    console.log(items);
+    await saveSessionState(await context.storageState(), config.service);
+  } catch(e) {
+    console.log("Failed to extract continue watching data: ", e);
+  }
 
-  await saveSessionState(await context.storageState(), config.service);
   await context.close();
-
   return items;
 }
