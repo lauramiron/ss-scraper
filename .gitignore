@@ -8,4 +8,5 @@ cookies.json
 routes.js
 services/netflix/routes.js
 services/netflix/scraper.js
+services/prime/routes.js
 db/dbQuery.js

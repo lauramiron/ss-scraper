@@ -3,6 +3,21 @@
 export ENV="debug"
 export TMPDIR=/tmp
 
+# Parse command line arguments
+USE_DEBUGGER=false
+RUN_MIGRATE=false
+
+for arg in "$@"; do
+  case $arg in
+    --debugger)
+      USE_DEBUGGER=true
+      ;;
+    --migrate)
+      RUN_MIGRATE=true
+      ;;
+  esac
+done
+
 # Colors for output
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -47,10 +62,17 @@ fi
 echo -e "${YELLOW}Building TypeScript...${NC}"
 npm run build
 
-# Run migrations
-echo -e "${YELLOW}Running migrations...${NC}"
-node scripts/migrate.mjs
+# Run migrations if --migrate flag is set
+if [ "$RUN_MIGRATE" = true ]; then
+  echo -e "${YELLOW}Running migrations...${NC}"
+  node scripts/migrate.mjs
+fi
 
 # Start the app with auto-rebuild on .ts changes
 echo -e "${GREEN}Starting the app...${NC}"
-nodemon --watch '**/*.ts' --exec 'npm run build && node' --inspect-brk server.js
+if [ "$USE_DEBUGGER" = true ]; then
+  echo -e "${YELLOW}Debugger enabled - attach at chrome://inspect${NC}"
+  nodemon --watch '**/*.ts' --exec 'npm run build && node --inspect-brk server.js'
+else
+  nodemon --watch '**/*.ts' --exec 'npm run build && node server.js'
+fi
