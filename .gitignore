@@ -10,3 +10,6 @@ services/netflix/routes.js
 services/netflix/scraper.js
 services/prime/routes.js
 db/dbQuery.js
+utils/playwrightUtils.js
+utils/utils.js
+netflix/services/auth.js

@@ -1,6 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import { netflixRouter } from "./services/netflix/routes.js";
+import { primeRouter } from "./services/prime/routes.js";
 
 const app = express();
 app.use(express.json());
@@ -165,6 +166,7 @@ app.get("/", async (req, res) => {
 });
 
 app.use("/netflix", netflixRouter);
+app.use("/prime", primeRouter);
 
 const port = process.env.PORT || 8080;
 app.listen(port, () => console.log(`Server running on ${port}`));

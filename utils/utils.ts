@@ -1,15 +1,16 @@
 /* eslint-disable no-debugger */
+import { Page } from "playwright";
 import { insertSessionState, insertStreamingAccount, selectSessionState, selectStreamingAccount, selectStreamingService, SessionState } from "../db/dbQuery.js";
-import { newChromiumBrowserFromSavedState } from "./playwrightUtils.js";
+import { newChromiumBrowserFromPersistentContext, newChromiumBrowserFromSavedState } from "./playwrightUtils.js";
 
-// const env = process.env.ENV;
+const env = process.env.ENV;
 
 
-export async function loadSessionState(service) {
+export async function loadSessionState(service: string) {
   // try load from cookies.js (used in local debug)
   debugger;
   // if (env == "debug") {
-  //   const cookiesModule = await import(`./${service}/cookies.js`);
+  //   const cookiesModule = await import(`../services/${service}/cookies.js`);
   //   const cookies = cookiesModule[`${service}Cookies`];
   //   console.log(`Loaded ${cookies.length} cookies for ${service}`);
   //   return {
@@ -19,12 +20,14 @@ export async function loadSessionState(service) {
   // }
 
   // production: load from database
-  return selectSessionState(service);
+  console.log('Loading session state from database for ', service)
+  const state = await selectSessionState(service);
+  if (!state) console.log("No saved session state found");
+  else console.log("Successfully loaded saved session state"); // TODO print time saved state saved
+  return state;
 }
 
 export async function saveSessionState(state: SessionState, service: string) {
-  debugger;
-
   const serviceId = (await selectStreamingService(service)).id;
 
   // Find the earliest expiration time from cookies
@@ -61,13 +64,14 @@ export async function saveCredentials(email, password, service) {
 interface RunScrapeConfig {
   service: string;
   browseUrl: string;
-  ensureLoggedIn: (page: any) => Promise<void>;
+  ensureLoggedIn: (page: any) => Promise<Page>;
   extractContinueWatching: (page: any) => Promise<any[]>;
 }
 
 export async function runScrape(config: RunScrapeConfig) {
   const state = await loadSessionState(config.service);
   const { context, page } = await newChromiumBrowserFromSavedState(state);
+  // const { context, page } = await newChromiumBrowserFromPersistentContext();
 
   await config.ensureLoggedIn(page);
 
