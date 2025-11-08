@@ -6,12 +6,4 @@ cookies.json
 **/*.png
 
 # TypeScript compiled output
-routes.js
-services/netflix/routes.js
-services/netflix/scraper.js
-services/prime/routes.js
-db/dbQuery.js
-utils/playwrightUtils.js
-utils/utils.js
-services/netflix/auth.js
-services/prime/auth.js
+dist/

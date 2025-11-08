@@ -72,7 +72,7 @@ fi
 echo -e "${GREEN}Starting the app...${NC}"
 if [ "$USE_DEBUGGER" = true ]; then
   echo -e "${YELLOW}Debugger enabled - attach at chrome://inspect${NC}"
-  nodemon --watch '**/*.ts' --exec 'npm run build && node --inspect-brk server.js'
+  nodemon --watch '**/*.ts' --exec 'npm run build && node --inspect-brk dist/server.js'
 else
-  nodemon --watch '**/*.ts' --exec 'npm run build && node server.js'
+  nodemon --watch '**/*.ts' --exec 'npm run build && node dist/server.js'
 fi

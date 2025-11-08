@@ -4,10 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "tsc",
-    "start": "node scripts/migrate.mjs && node server.js",
+    "clean": "rm -rf dist",
+    "build": "npm run clean && tsc",
+    "start": "node scripts/migrate.mjs && node dist/server.js",
     "dev": "./scripts/dev.sh",
-    "dev:simple": "nodemon server.js",
+    "dev:simple": "nodemon dist/server.js",
     "migrate": "node scripts/migrate.mjs"
   },
   "keywords": [],

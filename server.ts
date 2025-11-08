@@ -1,5 +1,5 @@
 import "dotenv/config";
-import express from "express";
+import express, { Request, Response, NextFunction } from "express";
 import { netflixRouter } from "./services/netflix/routes.js";
 import { primeRouter } from "./services/prime/routes.js";
 
@@ -12,16 +12,17 @@ const ALLOWED_IPS = (process.env.ALLOWED_IPS || "")
   .map((s) => s.trim())
   .filter(Boolean);
 
-app.use((req, res, next) => {
+app.use((req: Request, res: Response, next: NextFunction) => {
   const forwarded = req.headers["x-forwarded-for"];
-  // @ts-ignore
-  const ip = forwarded ? forwarded.split(",")[0].trim() : req.socket.remoteAddress;
+  const ip = forwarded
+    ? (Array.isArray(forwarded) ? forwarded[0] : forwarded.split(",")[0]).trim()
+    : req.socket.remoteAddress;
 
   // For debugging; remove later if noisy
   console.log("REQ", req.method, req.path, "from", ip);
 
   // 1️⃣  Allow whitelisted IPs
-  if (ALLOWED_IPS.includes(ip)) {
+  if (ALLOWED_IPS.includes(ip || "")) {
     console.log("Allowed IP:", ip);
     console.log(process.env.PLAYWRIGHT_BROWSERS_PATH);
 
@@ -40,7 +41,7 @@ app.use((req, res, next) => {
 });
 
 // Homepage route
-app.get("/", async (req, res) => {
+app.get("/", async (req: Request, res: Response) => {
   const services = ["netflix", "hbo", "hulu", "disney", "apple", "prime", "paramount"];
 
   // TODO: Implement data fetching for each service

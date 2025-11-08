@@ -22,4 +22,4 @@ ENV PORT=8080
 EXPOSE 8080
 
 # Run migrations then start server
-CMD ["bash", "-lc", "node scripts/migrate.mjs && node server.js"]
+CMD ["bash", "-lc", "node scripts/migrate.mjs && node dist/server.js"]
