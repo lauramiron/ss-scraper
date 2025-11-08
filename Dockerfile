@@ -10,6 +10,9 @@ RUN npm ci --omit=dev
 # Copy app code
 COPY . .
 
+# Build TypeScript after all files are copied
+RUN npm run build
+
 # Tell Playwright to use the preinstalled browsers
 ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
