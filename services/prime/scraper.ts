@@ -78,11 +78,6 @@ export async function formatRawContinueWatchingData(data) {
   const formattedData = {};
 
   data.forEach((item, index) => {
-    // TODO: Verify Prime Video's URL structure and extract the appropriate ID
-    // Prime Video URLs typically look like:
-    //   - /gp/video/detail/B08XYZT123/
-    //   - /detail/0TPB6PQ7OVE1234567890
-    // Extract the ASIN or identifier
     const match = item.href.match(/\/detail\/([A-Z0-9]+)/);
     const primeId = match ? match[1] : "";
 

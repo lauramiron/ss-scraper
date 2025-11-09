@@ -2,7 +2,7 @@
 import { Page } from "playwright";
 import { existsSync } from "fs";
 import { insertSessionState, insertStreamingAccount, selectSessionState, selectStreamingAccount, selectStreamingService, SessionState } from "../db/dbQuery.js";
-import { newChromiumBrowserFromPersistentContext, newChromiumBrowserFromSavedState } from "./playwrightUtils.js";
+import { newChromiumBrowserFromPersistentContext, newChromiumBrowserFromSavedState, waitForPageStable } from "./playwrightUtils.js";
 
 const env = process.env.ENV;
 
@@ -74,10 +74,42 @@ export async function saveCredentials(email, password, service) {
   await insertStreamingAccount(serviceId, email, password)
 }
 
+interface LoginConfig {
+  service: string;
+  browseUrl: string;
+  isLoggedIn: (page: Page) => Promise<Boolean>;
+  login: (page: Page) => Promise<void>;
+  isProfilesGate: (page: Page) => Promise<Boolean>;
+  selectProfile: (page: Page) => Promise<void>;
+}
+
+export async function ensureLoggedIn(config: LoginConfig, page: Page): Promise<Page> {
+
+  await page.goto(config.browseUrl, { waitUntil: "domcontentloaded" });
+
+  if (!await config.isLoggedIn(page)) {
+    await config.login(page);
+  }
+
+  await page.waitForLoadState('domcontentloaded', { timeout: 30000 });
+
+  if (await config.isProfilesGate(page)) {
+    await config.selectProfile(page);
+  }
+
+  await waitForPageStable(page);
+
+  await saveSessionState(await page.context().storageState(), config.service);
+  return page;
+}
+
 interface RunScrapeConfig {
   service: string;
   browseUrl: string;
-  ensureLoggedIn: (page: any) => Promise<Page>;
+  isLoggedIn: (page: Page) => Promise<Boolean>;
+  login: (page: Page) => Promise<void>;
+  isProfilesGate: (page: Page) => Promise<Boolean>;
+  selectProfile: (page: Page) => Promise<void>;
   extractContinueWatching: (page: any) => Promise<any[]>;
 }
 
@@ -86,7 +118,14 @@ export async function runScrape(config: RunScrapeConfig) {
   const { context, page } = await newChromiumBrowserFromSavedState(state);
   // const { context, page } = await newChromiumBrowserFromPersistentContext();
 
-  await config.ensureLoggedIn(page);
+  await ensureLoggedIn({
+    service: config.service,
+    browseUrl: config.browseUrl,
+    isLoggedIn: config.isLoggedIn,
+    login: config.login,
+    isProfilesGate: config.isProfilesGate,
+    selectProfile: config.selectProfile
+  }, page);
 
   await page.goto(config.browseUrl, { waitUntil: "domcontentloaded" });
 

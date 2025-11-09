@@ -1,6 +1,6 @@
 import { runScrape } from "../../utils/utils.js";
 import { formatRawContinueWatchingData, extractContinueWatching } from "./scraper.js";
-import { ensureLoggedIn } from "./auth.js";
+import { isLoggedIn, login, isProfilesGate, selectProfile } from "./auth.js";
 import { createStreamingServiceRouter } from "../../routes.js";
 
 const browseUrl = "https://www.amazon.com/gp/video/storefront"
@@ -12,7 +12,10 @@ export const primeRouter = createStreamingServiceRouter({
   runScrape: () => runScrape({
     service: "prime",
     browseUrl,
-    ensureLoggedIn,
+    isLoggedIn,
+    login,
+    isProfilesGate,
+    selectProfile,
     extractContinueWatching
   }),
   formatRawContinueWatchingData,

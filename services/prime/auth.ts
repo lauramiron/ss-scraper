@@ -3,60 +3,64 @@ import { getCredentials, saveSessionState } from "../../utils/utils.js";
 import { waitForPageStable } from "../../utils/playwrightUtils.js";
 
 
-async function login(page: Page, signInLink: Locator) {
+export async function login(page: Page) {
+  // TODO: Verify flow if browser loaded from saved state but still need to re-authenticate
+  // Without saved state, triggers 2-factor authentication via text
   const creds = await getCredentials("prime");
   if (!creds) throw new Error("No Prime Video credentials stored");
 
-  // Click the sign-in link to navigate to login page
+  const signInLink = page.locator('#nav-link-accountList').first().locator('a').first();
   await signInLink.click();
   await page.waitForLoadState('domcontentloaded');
 
-  // TODO: Inspect Amazon's login form to determine correct input selectors
   await page.fill('input[type="email"], input[name="email"], input[id="ap_email"]', creds.email);
 
-  // Amazon login is often two-step (email then password)
   const continueButton = page.locator('input[type="submit"], button[type="submit"]').first();
   await continueButton.click();
 
-  // Wait for password field to appear
   await page.waitForSelector('input[type="password"], input[name="password"], input[id="ap_password"]', { timeout: 5000 });
   await page.fill('input[type="password"], input[name="password"], input[id="ap_password"]', creds.password);
 
-  // TODO: Verify the sign-in button selector
   const signIn = page.locator('input[type="submit"]').first();
   await signIn.waitFor({ state: "visible", timeout: 15_000 });
 
   await Promise.all([
-    // TODO: Verify the URL patterns Amazon redirects to after login
     page.waitForURL(/amazon\.com/, { timeout: 30_000 }),
     signIn.click()
   ]);
 }
 
-export async function ensureLoggedIn(page: Page): Promise<Page> {
-  debugger;
-  await page.goto("https://www.amazon.com/gp/video/storefront", { waitUntil: "domcontentloaded" });
-
-  // Check login status by examining the account list navigation link
+export async function isLoggedIn(page: Page) {
   const accountListDiv = await page.locator('#nav-link-accountList').first();
   const accountLink = await accountListDiv.locator('a').first();
   const href = await accountLink.getAttribute('href').catch(() => null);
 
   // const isLoggedIn = href === "https://www.amazon.com/gp/css/homepage.html?ref_=nav_youraccount_btn";
-  const isLoggedIn = !href?.includes("/ap/signin");
+  return !href?.includes("/ap/signin");
+}
+
+export async function isProfilesGate(page: Page): Promise<Boolean> {
+  return false;
+}
+
+export async function selectProfile(page: Page) {
+  throw Error("selectProfile() not implemented for prime");
+}
+
+export async function ensureLoggedIn(page: Page): Promise<Page> {
+  await page.goto("https://www.amazon.com/gp/video/storefront", { waitUntil: "domcontentloaded" });
 
   if (!isLoggedIn) {
-    await login(page, accountLink);
+    await login(page);
   }
 
   await page.waitForLoadState('domcontentloaded', { timeout: 30000 });
 
-  // Prime Video typically doesn't have a profile selector for personal accounts
-  // TODO: Add profile selection logic if needed for household profiles
+  if (await isProfilesGate(page)) {
+    await selectProfile(page);
+  }
 
   await waitForPageStable(page);
-  debugger;
-  const context = page.context();
-  await saveSessionState(await context.storageState(), "prime");
+  await saveSessionState(await page.context().storageState(), "prime");
   return page;
 }

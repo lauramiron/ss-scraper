@@ -1,6 +1,6 @@
 import { runScrape } from "../../utils/utils.js";
 import { formatRawContinueWatchingData, extractContinueWatching } from "./scraper.js";
-import { ensureLoggedIn } from "./auth.js";
+import { isLoggedIn, login, isProfilesGate, selectProfile } from "./auth.js";
 import { createStreamingServiceRouter } from "../../routes.js";
 
 const browseUrl = "https://www.netflix.com/browse"
@@ -12,7 +12,10 @@ export const netflixRouter = createStreamingServiceRouter({
   runScrape: () => runScrape({
     service: "netflix",
     browseUrl,
-    ensureLoggedIn,
+    isLoggedIn,
+    login,
+    isProfilesGate,
+    selectProfile,
     extractContinueWatching
   }),
   formatRawContinueWatchingData,
