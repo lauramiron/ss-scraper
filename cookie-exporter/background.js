@@ -24,8 +24,8 @@ chrome.action.onClicked.addListener(async (tab) => {
         return { ...c, sameSite: ss };
       });
 
-    // prepare and download JSON
-    const json = JSON.stringify(cookies, null, 2);
+    // prepare and download JSON in session state format
+    const json = JSON.stringify({ cookies }, null, 2);
     const dataUrl =
       'data:application/json;charset=utf-8,' + encodeURIComponent(json);
 
