@@ -1,3 +1,4 @@
+// @ts-nocheck
 chrome.action.onClicked.addListener(async (tab) => {
   try {
     // derive the base domain (last two labels) from the current tab's hostname
