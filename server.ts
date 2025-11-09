@@ -125,6 +125,68 @@ app.get("/", async (req: Request, res: Response) => {
           color: #95a5a6;
           font-style: italic;
         }
+        .scrape-button {
+          width: 100%;
+          padding: 10px;
+          margin-top: 15px;
+          background: #3498db;
+          color: white;
+          border: none;
+          border-radius: 5px;
+          font-size: 14px;
+          font-weight: bold;
+          cursor: pointer;
+          transition: background 0.3s;
+        }
+        .scrape-button:hover {
+          background: #2980b9;
+        }
+        .scrape-button:disabled {
+          background: #95a5a6;
+          cursor: not-allowed;
+        }
+        .scrape-results {
+          margin-top: 15px;
+          padding: 15px;
+          background: #f8f9fa;
+          border-radius: 5px;
+          border: 1px solid #dee2e6;
+          max-height: 400px;
+          overflow-y: auto;
+          display: none;
+        }
+        .scrape-results.visible {
+          display: block;
+        }
+        .scrape-results.loading {
+          text-align: center;
+          color: #666;
+        }
+        .scrape-results.error {
+          background: #fee;
+          border-color: #fcc;
+          color: #c33;
+        }
+        .scrape-results pre {
+          margin: 0;
+          white-space: pre-wrap;
+          word-wrap: break-word;
+          font-size: 12px;
+          font-family: 'Monaco', 'Courier New', monospace;
+        }
+        .spinner {
+          border: 3px solid #f3f3f3;
+          border-top: 3px solid #3498db;
+          border-radius: 50%;
+          width: 30px;
+          height: 30px;
+          animation: spin 1s linear infinite;
+          margin: 10px auto;
+        }
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
       </style>
     </head>
     <body>
@@ -146,10 +208,45 @@ app.get("/", async (req: Request, res: Response) => {
                 <span class="status-label">Last Scrape:</span>
                 <span class="status-value ${service.last_scrape ? '' : 'status-null'}">${service.last_scrape ? new Date(service.last_scrape).toLocaleString() : 'N/A'}</span>
               </div>
+              <button class="scrape-button" onclick="scrapeService('${service.service}')">Scrape Now</button>
+              <div id="${service.service}-results" class="scrape-results"></div>
             </div>
           `).join('')}
         </div>
       </div>
+      <script>
+        async function scrapeService(service) {
+          const button = event.target;
+          const resultsDiv = document.getElementById(service + '-results');
+
+          // Disable button and show loading
+          button.disabled = true;
+          resultsDiv.className = 'scrape-results visible loading';
+          resultsDiv.innerHTML = '<div class="spinner"></div><p>Scraping ' + service + '... This may take 30-60 seconds.</p>';
+
+          try {
+            const response = await fetch('/' + service + '/resume', {
+              method: 'GET'
+            });
+
+            if (!response.ok) {
+              throw new Error('HTTP ' + response.status + ': ' + response.statusText);
+            }
+
+            const data = await response.json();
+
+            // Display success results
+            resultsDiv.className = 'scrape-results visible';
+            resultsDiv.innerHTML = '<strong>Scrape successful!</strong><pre>' + JSON.stringify(data, null, 2) + '</pre>';
+
+          } catch (error) {
+            // Display error
+            resultsDiv.className = 'scrape-results visible error';
+            resultsDiv.innerHTML = '<strong>Error:</strong> ' + error.message;
+            button.disabled = false;
+          }
+        }
+      </script>
     </body>
     </html>
   `;
