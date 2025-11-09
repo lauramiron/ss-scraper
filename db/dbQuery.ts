@@ -113,3 +113,20 @@ export async function selectResumeData(service?: string) {
   });
   return result;
 }
+
+export async function selectServiceStatuses() {
+  const { rows } = await query(`
+    SELECT
+      s.name as service,
+      CASE WHEN sa.id IS NOT NULL THEN true ELSE false END as has_credentials,
+      CASE WHEN ss.id IS NOT NULL THEN true ELSE false END as has_session_state,
+      ssd.updated_at as last_scrape
+    FROM streaming_service s
+    LEFT JOIN streaming_accounts sa ON sa.streaming_service_id = s.id
+    LEFT JOIN session_states ss ON ss.streaming_service_id = s.id
+    LEFT JOIN streaming_service_data ssd ON ssd.streaming_service_id = s.id AND ssd.data_type = 'resume'
+    ORDER BY s.name
+  `, []);
+
+  return rows;
+}

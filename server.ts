@@ -4,7 +4,7 @@ import { netflixRouter } from "./services/netflix/routes.js";
 import { primeRouter } from "./services/prime/routes.js";
 import { hboRouter } from "./services/hbo/routes.js";
 import { appleRouter } from "./services/apple/routes.js";
-import { selectResumeData } from "./db/dbQuery.js";
+import { selectResumeData, selectServiceStatuses } from "./db/dbQuery.js";
 
 const app = express();
 app.use(express.json());
@@ -45,16 +45,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 
 // Homepage route
 app.get("/", async (req: Request, res: Response) => {
-  const services = ["netflix", "hbo", "hulu", "disney", "apple", "prime", "paramount"];
-
-  // TODO: Implement data fetching for each service
-  const serviceStatuses = services.map(service => ({
-    name: service,
-    hasCredentials: null, // TODO: check if credentials exist
-    hasSessionState: null, // TODO: check if session state exists
-    lastLogin: null, // TODO: get last successful login timestamp
-    lastScrape: null // TODO: get last successful scrape timestamp
-  }));
+  const serviceStatuses = await selectServiceStatuses();
 
   const html = `
     <!DOCTYPE html>
@@ -119,15 +110,16 @@ app.get("/", async (req: Request, res: Response) => {
         }
         .status-value {
           color: #777;
-          font-style: italic;
         }
         .status-true {
           color: #27ae60;
           font-weight: bold;
+          font-size: 18px;
         }
         .status-false {
           color: #e74c3c;
           font-weight: bold;
+          font-size: 18px;
         }
         .status-null {
           color: #95a5a6;
@@ -141,22 +133,18 @@ app.get("/", async (req: Request, res: Response) => {
         <div class="services-grid">
           ${serviceStatuses.map(service => `
             <div class="service-box">
-              <div class="service-title">${service.name}</div>
+              <div class="service-title">${service.service}</div>
               <div class="status-row">
                 <span class="status-label">Login Credentials:</span>
-                <span class="status-value status-null">${service.hasCredentials ?? 'N/A'}</span>
+                <span class="${service.has_credentials ? 'status-true' : 'status-false'}">${service.has_credentials ? '✓' : '✗'}</span>
               </div>
               <div class="status-row">
                 <span class="status-label">Session State:</span>
-                <span class="status-value status-null">${service.hasSessionState ?? 'N/A'}</span>
-              </div>
-              <div class="status-row">
-                <span class="status-label">Last Login:</span>
-                <span class="status-value status-null">${service.lastLogin ?? 'N/A'}</span>
+                <span class="${service.has_session_state ? 'status-true' : 'status-false'}">${service.has_session_state ? '✓' : '✗'}</span>
               </div>
               <div class="status-row">
                 <span class="status-label">Last Scrape:</span>
-                <span class="status-value status-null">${service.lastScrape ?? 'N/A'}</span>
+                <span class="status-value ${service.last_scrape ? '' : 'status-null'}">${service.last_scrape ? new Date(service.last_scrape).toLocaleString() : 'N/A'}</span>
               </div>
             </div>
           `).join('')}

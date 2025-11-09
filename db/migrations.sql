@@ -4,6 +4,7 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 -- DROP TABLE IF EXISTS session_states;
 -- DROP TABLE IF EXISTS streaming_accounts;
 -- DROP TABLE IF EXISTS streaming_service CASCADE;
+DROP TABLE IF EXISTS streaming_service_data;
 
 CREATE TABLE IF NOT EXISTS streaming_service (
   id SERIAL PRIMARY KEY,
@@ -52,7 +53,8 @@ CREATE TABLE IF NOT EXISTS streaming_service_data (
     id SERIAL PRIMARY KEY,
     streaming_service_id INT NOT NULL REFERENCES streaming_service(id),
     data_type streaming_service_data_type NOT NULL,
-    json_data JSONB
+    json_data JSONB,
+    updated_at TIMESTAMP DEFAULT now()
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS streaming_service_data_datatype_json_index ON streaming_service_data (streaming_service_id, data_type)
