@@ -4,6 +4,7 @@ cookies.json
 **/cookies.js
 **/creds.js
 **/*.png
+data/**
 
 # TypeScript compiled output
 dist/
