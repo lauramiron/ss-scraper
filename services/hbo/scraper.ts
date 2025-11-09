@@ -1,5 +1,7 @@
 import "dotenv/config";
 import { lazyScroll } from "../../utils/playwrightUtils.js";
+import { Page } from "playwright";
+import { ContinueWatchingItem } from "utils/utils.js";
 
 // util: find the Continue Watching rail by heading text (case-insensitive)
 async function locateContinueWatchingRail(page) {
@@ -29,7 +31,7 @@ async function locateContinueWatchingRail(page) {
   return null;
 }
 
-export async function extractContinueWatching(page) {
+export async function extractContinueWatching(page: Page): Promise<ContinueWatchingItem[]> {
   console.log("🔎 Searching for Continue Watching rail (HBO)…");
   await lazyScroll(page);  // force some content to mount
 
@@ -68,7 +70,7 @@ export async function extractContinueWatching(page) {
   return items;
 }
 
-export async function formatRawContinueWatchingData(data) {
+export async function formatRawContinueWatchingData(data, page) {
   const formattedData = {};
 
   data.forEach((item, index) => {

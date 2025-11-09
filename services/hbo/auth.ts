@@ -6,7 +6,7 @@ export async function isProfilesGate(page: Page) {
   return false;
 }
 
-export async function login(page) {
+export async function login(page: Page) {
   /* TODO: Verify full sign-in flow */
 
   // const creds = await getCredentials("hbo");
@@ -26,7 +26,7 @@ export async function login(page) {
   // ]);
 }
 
-export async function selectProfile(page, profileName="Laura") {
+export async function selectProfile(page: Page, profileName="Laura") {
   // if (profileName) {
   //   const named = page.locator(
   //     `[data-testid="profile-card"]:has-text("${profileName}"), .profile-card:has-text("${profileName}")`

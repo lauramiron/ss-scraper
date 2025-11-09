@@ -16,7 +16,7 @@ export const primeRouter = createStreamingServiceRouter({
     login,
     isProfilesGate,
     selectProfile,
-    extractContinueWatching
-  }),
-  formatRawContinueWatchingData,
+    extractContinueWatching,
+    formatRawContinueWatchingData
+  })
 });

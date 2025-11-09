@@ -16,7 +16,7 @@ export const hboRouter = createStreamingServiceRouter({
     login,
     isProfilesGate,
     selectProfile,
-    extractContinueWatching
-  }),
-  formatRawContinueWatchingData,
+    extractContinueWatching,
+    formatRawContinueWatchingData
+  })
 });

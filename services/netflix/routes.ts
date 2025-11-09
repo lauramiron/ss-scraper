@@ -16,7 +16,7 @@ export const netflixRouter = createStreamingServiceRouter({
     login,
     isProfilesGate,
     selectProfile,
-    extractContinueWatching
-  }),
-  formatRawContinueWatchingData,
+    extractContinueWatching,
+    formatRawContinueWatchingData
+  })
 });

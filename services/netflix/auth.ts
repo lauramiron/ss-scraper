@@ -1,8 +1,7 @@
  
-// import { chromium } from "playwright";
 import { Page } from "playwright";
 import { getCredentials, saveSessionState } from "../../utils/utils.js";
-import { waitForPageStable } from "utils/playwrightUtils.js";
+import { waitForPageStable } from "../../utils/playwrightUtils.js";
 
 export async function isProfilesGate(page) {
   // Any profile tiles visible?
@@ -44,7 +43,7 @@ export async function isProfilesGate(page) {
 //   );
 // }
 
-export async function login(page) {
+export async function login(page: Page) {
   const creds = await getCredentials("netflix");
   if (!creds) throw new Error("No Netflix credentials stored");
 
@@ -63,7 +62,7 @@ export async function login(page) {
   ]);
 }
 
-export async function selectProfile(page, profileName="Laura") {
+export async function selectProfile(page: Page, profileName="Laura") {
   if (profileName) {
     // Try to click the named profile first
     const named = page.locator(
@@ -71,7 +70,6 @@ export async function selectProfile(page, profileName="Laura") {
     );
     if (await named.first().isVisible().catch(() => false)) {
       await Promise.all([
-        // waitForBrowseReady(page, { timeout: 30000 }),
         named.first().click(),
       ]);
     } else {

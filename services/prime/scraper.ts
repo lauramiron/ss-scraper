@@ -1,11 +1,12 @@
 import "dotenv/config";
 import { lazyScroll } from "../../utils/playwrightUtils.js";
+import { Page } from "playwright";
+import { ContinueWatchingItem } from "utils/utils.js";
 
 // util: find the Continue Watching rail by heading text
 async function locateContinueWatchingRail(page) {
   // Prime Video structure: section[data-testid="standard-carousel"]
   // containing span[data-testid="carousel-title"] > p with text "Continue Watching"
-  debugger;
   // try a few times after scrolls
   for (let pass = 0; pass < 3; pass++) {
     // Find all carousel sections
@@ -32,7 +33,7 @@ async function locateContinueWatchingRail(page) {
   return null;
 }
 
-export async function extractContinueWatching(page) {
+export async function extractContinueWatching(page: Page): Promise<ContinueWatchingItem[]> {
   console.log("🔎 Searching for Continue Watching rail (Prime Video)…");
   await lazyScroll(page);  // force some content to mount
 
@@ -45,7 +46,6 @@ export async function extractContinueWatching(page) {
   }
 
   // Prime Video card structure: <a> elements with href containing "/detail/"
-  debugger;
   const items = await rail.$$eval(
     'a[href*="/detail/"], a[href*="/gp/video/detail/"]',
     (anchors) => {
@@ -74,7 +74,7 @@ export async function extractContinueWatching(page) {
   return items;
 }
 
-export async function formatRawContinueWatchingData(data) {
+export async function formatRawContinueWatchingData(data, page: Page = null) {
   const formattedData = {};
 
   data.forEach((item, index) => {

@@ -1,15 +1,13 @@
 /* eslint-disable no-debugger */
 import { Page } from "playwright";
 import { existsSync } from "fs";
-import { insertSessionState, insertStreamingAccount, selectSessionState, selectStreamingAccount, selectStreamingService, SessionState } from "../db/dbQuery.js";
+import { ContinueWatchingData, insertSessionState, insertStreamingAccount, selectSessionState, selectStreamingAccount, selectStreamingService, SessionState } from "../db/dbQuery.js";
 import { newChromiumBrowserFromPersistentContext, newChromiumBrowserFromSavedState, waitForPageStable } from "./playwrightUtils.js";
 
 const env = process.env.ENV;
 
 
 export async function loadSessionState(service: string) {
-  debugger;
-
   // Always try database first
   console.log(`[${service}] Looking for session state in database...`);
   const state = await selectSessionState(service);
@@ -103,6 +101,11 @@ export async function ensureLoggedIn(config: LoginConfig, page: Page): Promise<P
   return page;
 }
 
+export interface ContinueWatchingItem {
+  title: string;
+  href: string;
+}
+
 interface RunScrapeConfig {
   service: string;
   browseUrl: string;
@@ -111,9 +114,10 @@ interface RunScrapeConfig {
   isProfilesGate: (page: Page) => Promise<Boolean>;
   selectProfile: (page: Page) => Promise<void>;
   extractContinueWatching: (page: any) => Promise<any[]>;
+  formatRawContinueWatchingData: (data: any[], page: Page) => Promise<any>;
 }
 
-export async function runScrape(config: RunScrapeConfig) {
+export async function runScrape(config: RunScrapeConfig): Promise<ContinueWatchingData> {
   const state = await loadSessionState(config.service);
   const { context, page } = await newChromiumBrowserFromSavedState(state);
   // const { context, page } = await newChromiumBrowserFromPersistentContext();
@@ -130,14 +134,16 @@ export async function runScrape(config: RunScrapeConfig) {
   await page.goto(config.browseUrl, { waitUntil: "domcontentloaded" });
 
   let items = [];
+  let formattedData = {};
   try {
     items = await config.extractContinueWatching(page);
-    console.log(items);
+    formattedData = await config.formatRawContinueWatchingData(items, page);
+    console.log(formattedData);
     await saveSessionState(await context.storageState(), config.service);
   } catch(e) {
     console.log("Failed to extract continue watching data: ", e);
   }
 
   await context.close();
-  return items;
+  return formattedData;
 }

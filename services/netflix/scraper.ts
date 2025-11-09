@@ -2,11 +2,7 @@ import "dotenv/config";
 import { Page, ElementHandle } from "playwright";
 import { ContinueWatchingData } from "db/dbQuery.js";
 import { lazyScroll } from "../../utils/playwrightUtils.js";
-
-export interface ContinueWatchingItem {
-  title: string;
-  href: string;
-}
+import { ContinueWatchingItem } from "utils/utils.js";
 
 // util: find the Continue Watching rail by heading text (case-insensitive)
 async function locateContinueWatchingRail(page: Page): Promise<ElementHandle | null> {
@@ -69,7 +65,7 @@ export async function extractContinueWatching(page: Page): Promise<ContinueWatch
   return items;
 }
 
-export async function formatRawContinueWatchingData(data): Promise<ContinueWatchingData> {
+export async function formatRawContinueWatchingData(data, page): Promise<ContinueWatchingData> {
     const formattedData: ContinueWatchingData = {};
     
     data.forEach((item, index) => {

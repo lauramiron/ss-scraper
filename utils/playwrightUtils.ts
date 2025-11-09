@@ -10,7 +10,6 @@ export async function lazyScroll(page, steps = 6, px = 900) {
 }
 
 export async function newChromiumBrowserFromSavedState(state: SessionState) {
-  debugger;
   const chromiumOptions = (process.env.ENV == "debug")
     ? { headless: false, slowMo: 100, args: [
         '--disable-features=WebAuthentication',

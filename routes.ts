@@ -1,13 +1,11 @@
 import express, { Request, Response, Router } from "express";
 import { insertStreamingServiceData, ContinueWatchingData, insertSessionState, selectStreamingService, SessionState } from "./db/dbQuery.js";
-import { ContinueWatchingItem } from "./services/netflix/scraper.js";
 import { getCredentials, saveCredentials } from "./utils/utils.js";
 
 interface StreamingServiceRouterConfig {
   service: string;
   browseUrl: string;
-  runScrape: () => Promise<ContinueWatchingItem[]>;
-  formatRawContinueWatchingData: (data: ContinueWatchingItem[]) => Promise<ContinueWatchingData>;
+  runScrape: () => Promise<ContinueWatchingData>;
 }
 
 export function createStreamingServiceRouter(config: StreamingServiceRouterConfig): Router {
@@ -15,12 +13,11 @@ export function createStreamingServiceRouter(config: StreamingServiceRouterConfi
 
   router.get("/resume", async (req: Request, res: Response) => {
     try {
-      const data = await config.runScrape();
-      const formattedData = await config.formatRawContinueWatchingData(data);
+      const formattedData = await config.runScrape();
 
       await insertStreamingServiceData(config.service, formattedData);
 
-      res.json(data);
+      res.json(formattedData);
     } catch (e) {
       console.error(e);
       res.status(500).send("Scrape failed");
