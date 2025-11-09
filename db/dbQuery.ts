@@ -79,3 +79,37 @@ export async function selectStreamingAccount(service: string): Promise<Streaming
   `, [ENCRYPTION_KEY, service]);
   return rows[0] || null;
 }
+
+export async function selectResumeData(service?: string) {
+  let sqlQuery = `
+    SELECT
+      s.name as service,
+      ssd.json_data as data
+    FROM streaming_service_data ssd
+    JOIN streaming_service s ON ssd.streaming_service_id = s.id
+    WHERE ssd.data_type = $1
+  `;
+
+  const params = ['resume'];
+
+  if (service) {
+    sqlQuery += ` AND s.name = $2`;
+    params.push(service);
+  }
+
+  sqlQuery += ` ORDER BY s.name`;
+
+  const { rows } = await query(sqlQuery, params);
+
+  if (service) {
+    // Return single service data
+    return rows[0] ? { service: rows[0].service, data: rows[0].data } : null;
+  }
+
+  // Return all services data as object keyed by service name
+  const result = {};
+  rows.forEach(row => {
+    result[row.service] = row.data;
+  });
+  return result;
+}

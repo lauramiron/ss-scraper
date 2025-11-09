@@ -4,6 +4,7 @@ import { netflixRouter } from "./services/netflix/routes.js";
 import { primeRouter } from "./services/prime/routes.js";
 import { hboRouter } from "./services/hbo/routes.js";
 import { appleRouter } from "./services/apple/routes.js";
+import { selectResumeData } from "./db/dbQuery.js";
 
 const app = express();
 app.use(express.json());
@@ -166,6 +167,24 @@ app.get("/", async (req: Request, res: Response) => {
   `;
 
   res.send(html);
+});
+
+// Resume/Continue Watching data endpoint
+app.get("/resume", async (req: Request, res: Response) => {
+  try {
+    const service = req.query.service as string | undefined;
+
+    const data = await selectResumeData(service);
+
+    if (!data) {
+      return res.status(404).json({ error: `No resume data found${service ? ` for service: ${service}` : ''}` });
+    }
+
+    res.json(data);
+  } catch (error) {
+    console.error("Error fetching resume data:", error);
+    res.status(500).json({ error: "Failed to fetch resume data" });
+  }
 });
 
 app.use("/netflix", netflixRouter);
