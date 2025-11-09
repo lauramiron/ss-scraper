@@ -64,14 +64,6 @@ export async function saveSessionState(state: SessionState, service: string) {
 }
 
 export async function getCredentials(service) {
-  // try load from creds.js (used in local debug)
-  debugger;
-  // if (env == "debug") {
-  //   const { creds } = await import("./creds.js");
-  //   return creds;
-  // }
-
-  // production: load from database
   return selectStreamingAccount(service);
 }
 
