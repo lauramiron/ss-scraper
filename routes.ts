@@ -14,29 +14,6 @@ export function createStreamingServiceRouter(config: StreamingServiceRouterConfi
   const router = express.Router();
 
   router.get("/resume", async (req: Request, res: Response) => {
-    // Debug double requests
-    const purpose = req.headers['sec-fetch-dest'] || req.headers['purpose'];
-    const accept = req.headers['accept'] || '';
-
-    if (purpose === 'prefetch') {
-      console.log('⚠️ Pre-fetch request:', { purpose, accept: accept.substring(0, 50) })
-    }
-
-    if (req.headers['sec-fetch-mode'] === 'no-cors') {
-      console.log('⚠️ No-cors request:', { purpose, accept: accept.substring(0, 50) })
-    }
-    
-    if (accept.includes('image/')) {
-      console.log('⚠️ Image request:', { purpose, accept: accept.substring(0, 50) })
-    }
-    
-    if (req.url.includes('favicon')) {
-      console.log('⚠️ Favicon request:', { purpose, accept: accept.substring(0, 50) })
-    }
-
-    // console.log('⚠️ Ignoring non-user request:', { purpose, accept: accept.substring(0, 50) });
-    // return res.status(204).send();
-
     try {
       const data = await config.runScrape();
       const formattedData = await config.formatRawContinueWatchingData(data);
