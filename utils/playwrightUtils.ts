@@ -57,7 +57,7 @@ export async function newChromiumBrowserFromPersistentContext() {
 }
 
 export async function waitForPageStable(page: Page) {
-    // await page.waitForLoadState('domcontentloaded', { timeout: 30000 });
+    await page.waitForLoadState('domcontentloaded', { timeout: 30000 });
     await page.waitForLoadState('networkidle');
     // await page.waitForSelector('#browse-container', { state: 'visible' });
     await waitForDomStability(page);
