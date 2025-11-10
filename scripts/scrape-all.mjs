@@ -1,4 +1,12 @@
 // scripts/scrape-all.mjs
+//
+// NOTE: This script is not currently used.
+//
+// Originally created to be run as a cron job on Render.com to periodically scrape
+// all streaming services. However, since the web app stays alive continuously,
+// the cron task is now handled internally by the web app itself.
+
+
 import "dotenv/config";
 import { runScrape } from "../dist/utils/utils.js";
 import { insertStreamingServiceData } from "../dist/db/dbQuery.js";
