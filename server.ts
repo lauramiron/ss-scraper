@@ -4,6 +4,7 @@ import { netflixRouter } from "./services/netflix/routes.js";
 import { primeRouter } from "./services/prime/routes.js";
 import { hboRouter } from "./services/hbo/routes.js";
 import { appleRouter } from "./services/apple/routes.js";
+import { disneyRouter } from "./services/disney/routes.js";
 import { selectResumeData, selectServiceStatuses } from "./db/dbQuery.js";
 
 const app = express();
@@ -112,6 +113,7 @@ app.use("/netflix", netflixRouter);
 app.use("/prime", primeRouter);
 app.use("/hbo", hboRouter);
 app.use("/apple", appleRouter);
+app.use("/disney", disneyRouter);
 
 const port = process.env.PORT || 8080;
 app.listen(port, () => console.log(`Server running on ${port}`));
