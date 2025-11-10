@@ -6,7 +6,7 @@ import { hboRouter } from "./services/hbo/routes.js";
 import { appleRouter } from "./services/apple/routes.js";
 import { disneyRouter } from "./services/disney/routes.js";
 import { router } from "./routes.js";
-import { ALLOWED_IPS } from "utils/const.js";
+import { ALLOWED_IPS } from "./utils/const.js";
 
 const app = express();
 app.use(express.json());
