@@ -1,5 +1,5 @@
 # Dockerfile.cron
-FROM node:20-alpine
+FROM mcr.microsoft.com/playwright:v1.56.0-noble
 WORKDIR /app
 
 COPY package*.json ./
