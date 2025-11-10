@@ -1,5 +1,6 @@
 import "dotenv/config";
 import express, { Request, Response, NextFunction } from "express";
+import cron from "node-cron";
 import { netflixRouter } from "./services/netflix/routes.js";
 import { primeRouter } from "./services/prime/routes.js";
 import { hboRouter } from "./services/hbo/routes.js";
@@ -7,6 +8,7 @@ import { appleRouter } from "./services/apple/routes.js";
 import { disneyRouter } from "./services/disney/routes.js";
 import { router } from "./routes.js";
 import { ALLOWED_IPS } from "./utils/const.js";
+import { runAllScrapes } from "./utils/scheduledScrape.js";
 
 const app = express();
 app.use(express.json());
@@ -60,3 +62,20 @@ app.use("/disney", disneyRouter);
  */
 const port = process.env.PORT || 8080;
 app.listen(port, () => console.log(`Server running on ${port}`));
+
+
+/**
+ * Scheduled Tasks
+ */
+// Run scrape for all services once an hour, on the hour
+cron.schedule('0 * * * *', async () => {
+  console.log(`[${new Date().toISOString()}] Starting scheduled scrape...`);
+  try {
+    await runAllScrapes();
+    console.log('✅ Scheduled scrape completed successfully');
+  } catch (err) {
+    console.error('❌ Scheduled scrape failed:', err);
+  }
+});
+
+console.log('⏰ Cron job scheduled: scraping all services every hour on the hour');
