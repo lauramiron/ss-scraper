@@ -1,5 +1,5 @@
 import express, { Request, Response, Router } from "express";
-import { insertStreamingServiceData, ContinueWatchingData, insertSessionState, selectStreamingService, SessionState } from "./db/dbQuery.js";
+import { insertStreamingServiceData, ContinueWatchingData, insertSessionState, selectStreamingService, SessionState, selectResumeData, selectServiceStatuses } from "./db/dbQuery.js";
 import { getCredentials, saveCredentials } from "./utils/utils.js";
 
 interface StreamingServiceRouterConfig {
@@ -11,7 +11,7 @@ interface StreamingServiceRouterConfig {
 export function createStreamingServiceRouter(config: StreamingServiceRouterConfig): Router {
   const router = express.Router();
 
-  router.get("/resume", async (req: Request, res: Response) => {
+  router.get("/scrape", async (req: Request, res: Response) => {
     try {
       const formattedData = await config.runScrape();
 
@@ -100,3 +100,72 @@ export function createStreamingServiceRouter(config: StreamingServiceRouterConfi
 
   return router;
 }
+
+// General router for homepage and data retrieval endpoints
+const router = express.Router();
+
+// Homepage route
+router.get("/", async (req: Request, res: Response) => {
+  const serviceStatuses = await selectServiceStatuses();
+
+  const html = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Streaming Service Scrape Statuses</title>
+      <link rel="stylesheet" href="/styles.css">
+    </head>
+    <body>
+      <div class="container">
+        <h1>Streaming Service Scrape Statuses</h1>
+        <div class="services-grid">
+          ${serviceStatuses.map(service => `
+            <div class="service-box">
+              <div class="service-title">${service.service}</div>
+              <div class="status-row">
+                <span class="status-label">Login Credentials:</span>
+                <span class="${service.has_credentials ? 'status-true' : 'status-false'}">${service.has_credentials ? '✓' : '✗'}</span>
+              </div>
+              <div class="status-row">
+                <span class="status-label">Session State:</span>
+                <span class="${service.has_session_state ? 'status-true' : 'status-false'}">${service.has_session_state ? '✓' : '✗'}</span>
+              </div>
+              <div class="status-row">
+                <span class="status-label">Last Scrape:</span>
+                <span class="status-value ${service.last_scrape ? '' : 'status-null'}">${service.last_scrape ? new Date(service.last_scrape).toLocaleString() : 'N/A'}</span>
+              </div>
+              <button class="scrape-button" onclick="scrapeService('${service.service}')">Scrape Now</button>
+              <div id="${service.service}-results" class="scrape-results"></div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+      <script src="/homepage.js"></script>
+    </body>
+    </html>
+  `;
+
+  res.send(html);
+});
+
+// Resume/Continue Watching data endpoint
+router.get("/resume", async (req: Request, res: Response) => {
+  try {
+    const service = req.query.service as string | undefined;
+
+    const data = await selectResumeData(service);
+
+    if (!data) {
+      return res.status(404).json({ error: `No resume data found${service ? ` for service: ${service}` : ''}` });
+    }
+
+    res.json(data);
+  } catch (error) {
+    console.error("Error fetching resume data:", error);
+    res.status(500).json({ error: "Failed to fetch resume data" });
+  }
+});
+
+export { router as router };

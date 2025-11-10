@@ -4,7 +4,7 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 -- DROP TABLE IF EXISTS session_states;
 -- DROP TABLE IF EXISTS streaming_accounts;
 -- DROP TABLE IF EXISTS streaming_service CASCADE;
-DROP TABLE IF EXISTS streaming_service_data;
+-- DROP TABLE IF EXISTS streaming_service_data;
 
 CREATE TABLE IF NOT EXISTS streaming_service (
   id SERIAL PRIMARY KEY,

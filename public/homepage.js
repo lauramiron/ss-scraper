@@ -8,7 +8,7 @@ async function scrapeService(service) {
   resultsDiv.innerHTML = '<div class="spinner"></div><p>Scraping ' + service + '... This may take 30-60 seconds.</p>';
 
   try {
-    const response = await fetch('/' + service + '/resume', {
+    const response = await fetch('/' + service + '/scrape', {
       method: 'GET'
     });
 
