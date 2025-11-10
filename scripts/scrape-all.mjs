@@ -86,7 +86,7 @@ const services = [
   },
   {
     name: "hbo",
-    browseUrl: "https://www.max.com",
+    browseUrl: "https://play.hbomax.com",
     isLoggedIn: hboIsLoggedIn,
     login: hboLogin,
     isProfilesGate: hboIsProfilesGate,
