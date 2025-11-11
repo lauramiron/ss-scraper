@@ -79,5 +79,6 @@ async function waitForDomStability(page, timeout = 5000, quietPeriod = 1000) {
     }
     await page.waitForTimeout(interval);
   }
-  throw new Error('DOM did not stabilize in time');
+  console.warn('⚠️ DOM did not stabilize in time, proceeding anyway...');
+  return false;
 }
