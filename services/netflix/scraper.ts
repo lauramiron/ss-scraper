@@ -36,8 +36,6 @@ export async function extractContinueWatching(page: Page): Promise<ContinueWatch
   const rail = await locateContinueWatchingRail(page);
   if (!rail) {
     console.warn("⚠️ Continue Watching rail not found.");
-    // helpful diagnostics
-    await page.screenshot({ path: "diag_no_continue_watching.png", fullPage: true }).catch(()=>{});
     return [];
   }
 
@@ -57,7 +55,6 @@ export async function extractContinueWatching(page: Page): Promise<ContinueWatch
     }
   ).catch(async (e) => {
     console.warn("⚠️ Could not eval card anchors in rail:", e?.message || e);
-    // await page.screenshot({ path: "diag_continue_watching_eval_error.png", fullPage: true }).catch(()=>{});
     return [];
   });
 

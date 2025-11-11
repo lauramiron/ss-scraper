@@ -13,6 +13,7 @@ import { runAllScrapes } from "./utils/scheduledScrape.js";
 const app = express();
 app.use(express.json());
 app.use(express.static("public"));
+app.use("/screenshots", express.static("screenshots"));
 
 /**
  * Middleware

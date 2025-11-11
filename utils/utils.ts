@@ -83,16 +83,24 @@ interface LoginConfig {
 
 export async function ensureLoggedIn(config: LoginConfig, page: Page): Promise<Page> {
 
+  console.log(`[${config.service}] Loading homepage: ${config.browseUrl}`);
   await page.goto(config.browseUrl, { waitUntil: "domcontentloaded" });
 
-  if (!await config.isLoggedIn(page)) {
+  const loggedIn = await config.isLoggedIn(page);
+  if (!loggedIn) {
+    console.log(`[${config.service}] Not logged in, starting login flow...`);
     await config.login(page);
+    console.log(`[${config.service}] ✓ Successfully completed login flow`);
+  } else {
+    console.log(`[${config.service}] ✓ Already logged in`);
   }
 
   await page.waitForLoadState('domcontentloaded', { timeout: 120000 });
 
   if (await config.isProfilesGate(page)) {
+    console.log(`[${config.service}] Profile selection required, selecting profile...`);
     await config.selectProfile(page);
+    console.log(`[${config.service}] ✓ Profile selected`);
   }
 
   await waitForPageStable(page);
@@ -122,28 +130,45 @@ export async function runScrape(config: RunScrapeConfig): Promise<ContinueWatchi
   const { context, page } = await newChromiumBrowserFromSavedState(state);
   // const { context, page } = await newChromiumBrowserFromPersistentContext();
 
-  await ensureLoggedIn({
-    service: config.service,
-    browseUrl: config.browseUrl,
-    isLoggedIn: config.isLoggedIn,
-    login: config.login,
-    isProfilesGate: config.isProfilesGate,
-    selectProfile: config.selectProfile
-  }, page);
-
-  await page.goto(config.browseUrl, { waitUntil: "domcontentloaded" });
-
-  let items = [];
-  let formattedData = {};
   try {
-    items = await config.extractContinueWatching(page);
-    formattedData = await config.formatRawContinueWatchingData(items, page);
-    console.log(formattedData);
-    await saveSessionState(await context.storageState(), config.service);
-  } catch(e) {
-    console.log("Failed to extract continue watching data: ", e);
-  }
+    await ensureLoggedIn({
+      service: config.service,
+      browseUrl: config.browseUrl,
+      isLoggedIn: config.isLoggedIn,
+      login: config.login,
+      isProfilesGate: config.isProfilesGate,
+      selectProfile: config.selectProfile
+    }, page);
 
-  await context.close();
-  return formattedData;
+    await page.goto(config.browseUrl, { waitUntil: "domcontentloaded" });
+
+    let items = [];
+    let formattedData = {};
+    try {
+      items = await config.extractContinueWatching(page);
+      formattedData = await config.formatRawContinueWatchingData(items, page);
+      console.log(formattedData);
+      await saveSessionState(await context.storageState(), config.service);
+    } catch(e) {
+      console.log("Failed to extract continue watching data: ", e);
+      throw e; // Re-throw to trigger outer catch
+    }
+
+    await context.close();
+    return formattedData;
+  } catch (error) {
+    // Take screenshot on any failure
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const screenshotPath = `screenshots/${config.service}_${timestamp}.png`;
+
+    try {
+      await page.screenshot({ path: screenshotPath, fullPage: true });
+      console.error(`❌ Scrape failed for ${config.service}. Screenshot saved to ${screenshotPath}`);
+    } catch (screenshotError) {
+      console.error(`❌ Scrape failed for ${config.service}. Failed to take screenshot:`, screenshotError);
+    }
+
+    await context.close();
+    throw error; // Re-throw original error
+  }
 }

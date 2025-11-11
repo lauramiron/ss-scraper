@@ -50,20 +50,3 @@ export async function selectProfile(page: Page) {
   throw Error("selectProfile() not implemented for apple - Apple TV+ does not have profiles");
 }
 
-export async function ensureLoggedIn(page: Page): Promise<Page> {
-  await page.goto("https://tv.apple.com", { waitUntil: "domcontentloaded" });
-
-  if (!await isLoggedIn(page)) {
-    await login(page);
-  }
-
-  await page.waitForLoadState('domcontentloaded', { timeout: 30000 });
-
-  if (await isProfilesGate(page)) {
-    await selectProfile(page);
-  }
-
-  await waitForPageStable(page);
-  await saveSessionState(await page.context().storageState(), "apple");
-  return page;
-}

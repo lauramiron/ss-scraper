@@ -90,22 +90,3 @@ export async function isLoggedIn(page: Page) : Promise<Boolean> {
   return !(page.url()).includes("login");
 }
 
-export async function ensureLoggedIn(page: Page): Promise<Page> {
-
-  await page.goto("https://www.netflix.com/browse", { waitUntil: "domcontentloaded" });
-
-  if (!isLoggedIn(page)) {
-    await login(page);
-  }
-
-  await page.waitForLoadState('domcontentloaded', { timeout: 30000 });
-
-  if (await isProfilesGate(page)) {
-    await selectProfile(page);
-  }
-
-  await waitForPageStable(page);
-
-  await saveSessionState(await page.context().storageState(), "netflix");
-  return page;
-}

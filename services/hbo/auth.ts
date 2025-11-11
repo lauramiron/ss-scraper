@@ -52,24 +52,3 @@ export async function isLoggedIn(page: Page): Promise<Boolean> {
   const href = await headerNavDiv.getAttribute('href').catch(() => null);
   return !href?.includes("auth.hbomax.com/login");
 }
-
-export async function ensureLoggedIn(page: Page): Promise<Page> {
-  await page.goto("https://play.max.com", { waitUntil: "domcontentloaded" });
-  
-  if (!isLoggedIn(page)) {
-    await login(page);
-  }
-
-  await page.waitForLoadState('domcontentloaded', { timeout: 30000 });
-
-  // Are we on the profiles gate?
-  if (await isProfilesGate(page)) {
-    await selectProfile(page);
-  }
-
-  await waitForPageStable(page);
-
-  const context = page.context();
-  await saveSessionState(await context.storageState(), "hbo");
-  return page;
-}

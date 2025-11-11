@@ -47,20 +47,3 @@ export async function selectProfile(page: Page) {
   throw Error("selectProfile() not implemented for prime");
 }
 
-export async function ensureLoggedIn(page: Page): Promise<Page> {
-  await page.goto("https://www.amazon.com/gp/video/storefront", { waitUntil: "domcontentloaded" });
-
-  if (!isLoggedIn) {
-    await login(page);
-  }
-
-  await page.waitForLoadState('domcontentloaded', { timeout: 30000 });
-
-  if (await isProfilesGate(page)) {
-    await selectProfile(page);
-  }
-
-  await waitForPageStable(page);
-  await saveSessionState(await page.context().storageState(), "prime");
-  return page;
-}

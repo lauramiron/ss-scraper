@@ -1,6 +1,8 @@
 import express, { Request, Response, Router } from "express";
 import { insertStreamingServiceData, ContinueWatchingData, insertSessionState, selectStreamingService, SessionState, selectResumeData, selectServiceStatuses } from "./db/dbQuery.js";
 import { getCredentials, saveCredentials } from "./utils/utils.js";
+import fs from "fs";
+import path from "path";
 
 interface StreamingServiceRouterConfig {
   service: string;
@@ -141,6 +143,13 @@ router.get("/", async (req: Request, res: Response) => {
             </div>
           `).join('')}
         </div>
+
+        <div class="screenshots-section">
+          <h2>Screenshots</h2>
+          <div id="screenshots-list" class="screenshots-list">
+            <p class="loading">Loading screenshots...</p>
+          </div>
+        </div>
       </div>
       <script src="/homepage.js"></script>
     </body>
@@ -165,6 +174,36 @@ router.get("/resume", async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Error fetching resume data:", error);
     res.status(500).json({ error: "Failed to fetch resume data" });
+  }
+});
+
+// Screenshots list endpoint
+router.get("/screenshots", async (req: Request, res: Response) => {
+  try {
+    const screenshotsDir = path.resolve("screenshots");
+
+    // Check if directory exists
+    if (!fs.existsSync(screenshotsDir)) {
+      return res.json([]);
+    }
+
+    // Read directory and filter for .png files
+    const files = fs.readdirSync(screenshotsDir)
+      .filter(file => file.endsWith('.png'))
+      .map(file => {
+        const stats = fs.statSync(path.join(screenshotsDir, file));
+        return {
+          name: file,
+          timestamp: stats.mtime,
+          size: stats.size
+        };
+      })
+      .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime()); // Most recent first
+
+    res.json(files);
+  } catch (error) {
+    console.error("Error listing screenshots:", error);
+    res.status(500).json({ error: "Failed to list screenshots" });
   }
 });
 
