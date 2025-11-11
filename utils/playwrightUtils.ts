@@ -10,15 +10,31 @@ export async function lazyScroll(page, steps = 6, px = 900) {
 }
 
 export async function newChromiumBrowserFromSavedState(state: SessionState) {
+  const memoryOptimizationArgs = [
+    '--disable-features=WebAuthentication',
+    '--disable-blink-features=CredentialManager,WebAuthenticationAPI',
+    '--disable-dev-shm-usage',           // Overcome limited resource problems
+    '--disable-gpu',                     // Disable GPU hardware acceleration
+    '--no-sandbox',                      // Required for some environments
+    '--disable-setuid-sandbox',
+    '--disable-software-rasterizer',
+    '--disable-background-timer-throttling',
+    '--disable-backgrounding-occluded-windows',
+    '--disable-renderer-backgrounding',
+    '--disable-extensions',
+    '--disable-sync',
+    '--metrics-recording-only',
+    '--mute-audio',
+    '--no-first-run',
+    '--disable-default-apps',
+    '--disable-plugins',
+    '--single-process'                   // Run in single process mode (uses less memory)
+  ];
+
   const chromiumOptions = (process.env.ENV == "debug")
-    ? { headless: false, slowMo: 100, args: [
-        '--disable-features=WebAuthentication',
-        '--disable-blink-features=CredentialManager,WebAuthenticationAPI'
-      ] }
-    : { headless: true, args: [
-        '--disable-features=WebAuthentication',
-        '--disable-blink-features=CredentialManager,WebAuthenticationAPI'
-      ] };
+    ? { headless: false, slowMo: 100, args: memoryOptimizationArgs }
+    : { headless: true, args: memoryOptimizationArgs };
+
   const browser = await chromium.launch(chromiumOptions);
   const context = await browser.newContext({
     storageState: state || undefined,
