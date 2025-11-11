@@ -57,4 +57,6 @@ CREATE TABLE IF NOT EXISTS streaming_service_data (
     updated_at TIMESTAMP DEFAULT now()
 );
 
+ALTER TABLE streaming_service_data ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT now();
+
 CREATE UNIQUE INDEX IF NOT EXISTS streaming_service_data_datatype_json_index ON streaming_service_data (streaming_service_id, data_type)
