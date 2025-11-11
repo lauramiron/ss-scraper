@@ -89,7 +89,7 @@ export async function ensureLoggedIn(config: LoginConfig, page: Page): Promise<P
     await config.login(page);
   }
 
-  await page.waitForLoadState('domcontentloaded', { timeout: 30000 });
+  await page.waitForLoadState('domcontentloaded', { timeout: 120000 });
 
   if (await config.isProfilesGate(page)) {
     await config.selectProfile(page);
