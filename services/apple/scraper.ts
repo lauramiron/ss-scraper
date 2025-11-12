@@ -80,13 +80,15 @@ export async function formatRawContinueWatchingData(data, page) {
     const item = data[index];
     const isEpisode = item.href.includes("episode");
 
-    // Extract ID: everything after "episode/" or "movie/"
+    // Extract ID
     let appleId = "";
     if (isEpisode) {
-      const match = item.href.match(/\/episode\/(.+)/);
+      // For episodes, extract showId query parameter
+      const match = item.href.match(/[?&]showId=([^&]+)/);
       appleId = match ? match[1] : "";
     } else {
-      const match = item.href.match(/\/movie\/(.+)/);
+      // For movies, extract ID after final slash without query parameters
+      const match = item.href.match(/\/movie\/([^?]+)/);
       appleId = match ? match[1] : "";
     }
 
