@@ -18,7 +18,7 @@ async function locateContinueWatchingRail(page) {
 
       if (titleSpan) {
         // Check if it contains a p element with "Continue Watching" text
-        const pElement = await titleSpan.$('p');
+        const pElement = await titleSpan.$('span, p');
         if (pElement) {
           const text = await pElement.textContent();
           if (text?.trim().toLowerCase() === "continue watching") {
