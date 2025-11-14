@@ -6,6 +6,7 @@ import { primeRouter } from "./services/prime/routes.js";
 import { hboRouter } from "./services/hbo/routes.js";
 import { appleRouter } from "./services/apple/routes.js";
 import { disneyRouter } from "./services/disney/routes.js";
+import { paramountRouter } from "./services/paramount/routes.js";
 import { router } from "./routes.js";
 import { ALLOWED_IPS } from "./utils/const.js";
 import { runAllScrapes } from "./utils/scheduledScrape.js";
@@ -56,6 +57,7 @@ app.use("/prime", primeRouter);
 app.use("/hbo", hboRouter);
 app.use("/apple", appleRouter);
 app.use("/disney", disneyRouter);
+app.use("/paramount", paramountRouter);
 
 
 /**

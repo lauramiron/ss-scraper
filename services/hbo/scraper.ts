@@ -41,27 +41,33 @@ export async function extractContinueWatching(page: Page): Promise<ContinueWatch
     return [];
   }
 
-  const items = await rail.$$eval(
-    'a[href*="/video/watch"]',
-    (anchors) => {
-      const results = [];
-      for (const a of anchors) {
-        const href = a.href;
+  const anchors = await rail.$$('a[href*="/video/watch"]');
+  const items = [];
 
-        // Find span with className containing "StyledPrimaryTitle"
-        const titleSpan = a.querySelector('span[class*="StyledPrimaryTitle"]');
-        const title = titleSpan?.textContent?.trim() || "";
+  for (const a of anchors) {
+    const href = await a.getAttribute('href');
 
-        if (title && href) {
-          results.push({ title, href });
-        }
-      }
-      return results;
+    // Find span with className containing "StyledPrimaryTitle"
+    const titleSpan = await a.$('span[class*="StyledPrimaryTitle"]');
+    const secondaryTitleSpan = await a.$('span[class*="StyledSecondaryTitle"]');
+    const type = (secondaryTitleSpan) ? "episode" : "movie"
+
+    let title;
+    if (type == "movie") {
+      title = titleSpan ? await titleSpan.textContent() : "";
+    } else {
+      const ariaLabel = await a.getAttribute('aria-label');
+      const match = ariaLabel?.match(/Watch (.+?)\./);
+      title = match ? match[1] : "";
     }
-  ).catch(async (e) => {
-    console.warn("⚠️ Could not eval card anchors in rail (HBO):", e?.message || e);
-    return [];
-  });
+
+    if (title && href) {
+      items.push({ title, href, type });
+    }
+  }
+  return items;
+  // console.warn("⚠️ Could not eval card anchors in rail (HBO):", e?.message || e);
+  // return [];
 
   console.log(`✅ Found ${items.length} continue-watching items (HBO)`);
   return items;
@@ -70,8 +76,33 @@ export async function extractContinueWatching(page: Page): Promise<ContinueWatch
 export async function formatRawContinueWatchingData(data, page) {
   const formattedData = {};
 
-  data.forEach((item, index) => {
+  for (let index = 0; index < data.length; index++) {
+    const item = data[index];
     // Extract the ID from /video/watch/ID format
+    if (item.type == "episode") {
+      const searchUrl = "https://play.hbomax.com/search/result?q=" + encodeURIComponent(item.title)
+      await page.goto(searchUrl, { waitUntil: "domcontentloaded" });
+
+      // Find the search results section
+      const section = await page.$('section[data-sonic-id="search-page-rail-results"]');
+      if (section) {
+        // Find anchor element with aria-label containing the title
+        const anchor = await section.$(`a[aria-label*="${item.title.replace(/"/g, '\\"')}"]`);
+        if (anchor) {
+          const href = await anchor.getAttribute('href');
+          // Extract ID from /show/[id] format
+          const showMatch = href?.match(/\/show\/([^/]+)/);
+          const showId = showMatch ? showMatch[1] : "";
+
+          formattedData[index] = {
+            title: item.title,
+            id: showId
+          };
+          continue;
+        }
+      }
+    }
+
     const match = item.href.match(/\/watch\/(.+?)(?:\/|$|\?)/);
     const hboId = match ? match[1] : "";
 
@@ -79,7 +110,7 @@ export async function formatRawContinueWatchingData(data, page) {
       title: item.title,
       id: hboId
     };
-  });
+  }
 
   return formattedData;
 }

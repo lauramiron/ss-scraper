@@ -72,10 +72,15 @@ export async function newChromiumBrowserFromPersistentContext() {
 }
 
 export async function waitForPageStable(page: Page) {
-    await page.waitForLoadState('domcontentloaded', { timeout: 30000 });
+  try {
+    await page.waitForLoadState('domcontentloaded', { timeout: 5000 });
     await page.waitForLoadState('networkidle');
     // await page.waitForSelector('#browse-container', { state: 'visible' });
     await waitForDomStability(page);
+  } catch {
+    console.warn('⚠️ DOM did not stabilize in time, proceeding anyway...');
+    return false;
+  }
 }
 
 async function waitForDomStability(page, timeout = 5000, quietPeriod = 1000) {
