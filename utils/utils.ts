@@ -127,7 +127,7 @@ interface RunScrapeConfig {
 
 export async function runScrape(config: RunScrapeConfig): Promise<ContinueWatchingData> {
   const state = await loadSessionState(config.service);
-  const { context, page } = await newChromiumBrowserFromSavedState(state);
+  const { browser, context, page } = await newChromiumBrowserFromSavedState(state);
   // const { context, page } = await newChromiumBrowserFromPersistentContext();
 
   try {
@@ -154,7 +154,6 @@ export async function runScrape(config: RunScrapeConfig): Promise<ContinueWatchi
       throw e; // Re-throw to trigger outer catch
     }
 
-    await context.close();
     return formattedData;
   } catch (error) {
     // Take screenshot on any failure
@@ -168,7 +167,14 @@ export async function runScrape(config: RunScrapeConfig): Promise<ContinueWatchi
       console.error(`❌ Scrape failed for ${config.service}. Failed to take screenshot:`, screenshotError);
     }
 
-    await context.close();
     throw error; // Re-throw original error
+  } finally {
+    // Always close browser, even if there were errors
+    try {
+      await browser.close();
+      console.log(`[${config.service}] ✓ Browser closed successfully`);
+    } catch (closeError) {
+      console.error(`[${config.service}] ⚠️ Error closing browser:`, closeError);
+    }
   }
 }

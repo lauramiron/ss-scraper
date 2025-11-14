@@ -42,7 +42,7 @@ export async function newChromiumBrowserFromSavedState(state: SessionState) {
   });
 
   const page = await context.newPage();
-    
+
   const devTools = await page.context().newCDPSession(page);
   await devTools.send('WebAuthn.enable');
   await devTools.send('WebAuthn.addVirtualAuthenticator', {
@@ -55,7 +55,7 @@ export async function newChromiumBrowserFromSavedState(state: SessionState) {
     },
   });
 
-  return { context, page };
+  return { browser, context, page };
 }
 
 export async function newChromiumBrowserFromPersistentContext() {
