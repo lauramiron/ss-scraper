@@ -21,7 +21,7 @@ export async function insertStreamingServiceData(service: string, formattedData:
         INSERT INTO streaming_service_data (streaming_service_id, data_type, json_data)
         VALUES ($1, $2, $3)
         ON CONFLICT (streaming_service_id, data_type)
-        DO UPDATE SET json_data = $3
+        DO UPDATE SET json_data = $3, updated_at = now()
       `, [serviceId, 'resume', JSON.stringify(formattedData)]);
     }
 }
